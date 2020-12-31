@@ -1,5 +1,5 @@
 addBooks();
-
+let form = document.getElementById("form");
 let isbn = document.getElementById("isbn");
 let book = document.getElementById("bookname");
 let author = document.getElementById("author");
@@ -7,9 +7,18 @@ let publisher = document.getElementById("publisher");
 let quantity = document.getElementById("quantity");
 let addbookbtn = document.getElementById("addbookbtn");
 let savebookbtn = document.getElementById("savebookbtn");
+let deleteModalBtn= document.getElementById('deleteModalId');
 
-addbookbtn.addEventListener("click", (e) => {
-e.preventDefault();
+
+addbookbtn.addEventListener("click", (event) => {
+  if (!form.checkValidity()) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  form.classList.add("was-validated");
+
+ 
+
 //local storage
 if ((isbn.value.trim() && book.value.trim() && author.value.trim()&& 
 publisher.value.trim()&& quantity.value.trim())!= 0) {
@@ -20,7 +29,7 @@ bookname: book.value,
 author: author.value,
 publisher: publisher.value,
 quantity: quantity.value,
-issuedbooks: "",
+issuedbooks: 0,
 };
 let webtask = localStorage.getItem("localbooks");
 if (webtask == null) {
@@ -69,21 +78,9 @@ bookHtml += `<tr>
 <button type="button" class="btn btn-primary" onclick="editBookInfo(${index})">
 Edit
 </button>
-<button type="button" id="myBtn" class="btn btn-danger" >
+<button type="button" id="myBtn" class="btn btn-danger"  onclick="onOpenModal(${index})">
 Delete
 </button>
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-  <!-- Modal content -->
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <p>Are you sure to delete this</p>
-    <button onclick="deleteBookInfo(${index})">OK</button>
-  </div>
-
-</div>
-
 </td>
 </tr>`;
 });
@@ -120,15 +117,31 @@ books[saveindex].author = author.value;
 books[saveindex].publisher = publisher.value;
 books[saveindex].quantity = quantity.value 
 localStorage.setItem("localbooks", JSON.stringify(books));
+addbookbtn.style.display = "block";
+savebookbtn.style.display = "none";
+isbn.value="";
+book.value="";
+author.value="";
+publisher.value="";
+quantity.value="";
+
 
 addBooks();
 });
 
-function deleteBookInfo(index){
+function onOpenModal(index){
+  exampleModal.style.display='block';
+  deleteModalBtn.setAttribute('data-deleteId',index)
+  
+}
 
+
+function deleteBookInfo(event){
+  exampleModal.style.display='none';
+  var tableRow=event.target.getAttribute("data-deleteId");
   let webtask = localStorage.getItem("localbooks");
 let books = JSON.parse(webtask);
-books.splice(index,1);
+books.splice(tableRow,1);
 localStorage.setItem("localbooks", JSON.stringify(books));
 isbn.value="";
 book.value="";
@@ -144,29 +157,4 @@ addBooks();
 }
 
 
-// Get the modal
-var modal = document.getElementById("myModal");
-
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  modal.style.display = "block";
-}
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
 

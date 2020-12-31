@@ -1,5 +1,6 @@
 addUsers();
 
+let form = document.getElementById("form");
 let username = document.getElementById("username");
 let email = document.getElementById("email");
 let address = document.getElementById("address");
@@ -7,13 +8,18 @@ let city = document.getElementById("city");
 let contactno = document.getElementById("contactno");
 let adduserbtn = document.getElementById("adduserbtn");
 let saveuserbtn = document.getElementById("saveuserbtn");
-//error message
+let exampleModal=document.getElementById('exampleModal');
+let deleteModalBtn= document.getElementById('deleteModalId');
 
-adduserbtn.addEventListener("click", (e) => {
-  e.preventDefault();
+// Example starter JavaScript for disabling form submissions if there are invalid fields
 
-  //validation
-  checkRequired([username, email, address, city,contactno]);
+adduserbtn.addEventListener("click", (event) => {
+  if (!form.checkValidity()) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  form.classList.add("was-validated");
+
   //local storage
   if (
     (username.value.trim() &&
@@ -36,17 +42,13 @@ adduserbtn.addEventListener("click", (e) => {
     } else {
       users = JSON.parse(webuser);
     }
-
     users.push(userObj);
     username.value = "";
     email.value = "";
     address.value = "";
     city.value = "";
     contactno.value = "";
-  } else {
-    alert("enter all fields");
   }
-
   //let table = document.getElementById("userlist");
   //let html = "";
   localStorage.setItem("localusers", JSON.stringify(users));
@@ -63,35 +65,26 @@ function addUsers() {
     users = JSON.parse(webuser);
   }
   //get the table body
+
   let userHtml = "";
   let userlist = document.getElementById("userlist");
-  users.forEach((user, index) => {
+  users.forEach((user, i) => {
+    let userId=i+1
     userHtml += `<tr>
-<th scope="row">${index + 1}</th>
+<th scope="row">${userId}</th>
 <td>${user.username}</td>
 <td>${user.email}</td>
 <td>${user.address}</td>
 <td>${user.city}</td>
 <td>${user.contactno}</td>
 <td colspan="2">
-<button type="button" class="btn btn-primary" onclick="editUserInfo(${index})">
+<button type="button" class="btn btn-primary" onclick="editUserInfo(${i})">
 Edit
 </button>
-<button type="button" id="myBtn" class="btn btn-danger" data-toggle="modal" data-target="#myModal" >
+
+<button type="button" class="btn btn-info" onclick="onOpenModal(${i})"  >
 Delete
 </button>
-<!-- The Modal -->
-<div id="myModal" class="modal">
-
-  <!-- Modal content -->
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <p>Are you sure to delete this</p>
-    <button onclick="deleteUserInfo(${index})">OK</button>
-  </div>
-
-</div>
-
 
 </td>
 </tr>`;
@@ -128,15 +121,32 @@ saveuserbtn.addEventListener("click", (e) => {
   users[saveindex].address = address.value;
   users[saveindex].city = city.value;
   users[saveindex].contactno = contactno.value;
+ 
   localStorage.setItem("localusers", JSON.stringify(users));
+  adduserbtn.style.display = "block";
+  saveuserbtn.style.display = "none";
+  username.value = "";
+  email.value = "";
+  address.value = "";
+  city.value = "";
+  contactno.value = "";
+
 
   addUsers();
 });
+ 
+function onOpenModal(index){
+  exampleModal.style.display='block';
+  deleteModalBtn.setAttribute('data-deleteId',index)
+  
+}
 
-function deleteUserInfo(index) {
+function deleteUserInfo(event) {
+  exampleModal.style.display='none';
+  var tableRow=event.target.getAttribute("data-deleteId");
   let webuser = localStorage.getItem("localusers");
   let users = JSON.parse(webuser);
-  users.splice(index, 1);
+  users.splice(tableRow, 1);
   localStorage.setItem("localusers", JSON.stringify(users));
   username.value = "";
   email.value = "";
@@ -145,57 +155,3 @@ function deleteUserInfo(index) {
   contactno.value = "";
   addUsers();
 }
-
-
-function showError(input, message) {
-
-  const formControl = input.parentElement;
-  formControl.className = ' error';
-  const small = formControl.querySelector('small');
-  small.innerText = message;
-}
-//success outline
-function showSuccess(input) {
-
-  const formControl = input.parentElement;
-  formControl.className = ' success';
-}
-function checkRequired(inputArr) {
-  inputArr.forEach(function (input) {
-      if (input.value.trim() == "") {
-          showError(input, `${getFieldName(input)} is required`)
-      } else {
-          showSuccess(input);
-      }
-  });
-}
-function getFieldName(input) {
-  return input.id.charAt(0).toUpperCase() + input.id.slice(1);
-}
-
-// Get the modal
-var modal = document.getElementById("myModal");
-
-// Get the button that opens the modal
-var btn = document.getElementById("myBtn");
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on the button, open the modal
-btn.onclick = function() {
-  modal.style.display = "block";
-}
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-  modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
