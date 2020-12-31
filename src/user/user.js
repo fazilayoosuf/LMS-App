@@ -82,7 +82,7 @@ function addUsers() {
 Edit
 </button>
 
-<button type="button" class="btn btn-info" onclick="onOpenModal(${i})"  >
+<button type="button" class="btn btn-danger" onclick="onOpenModal(${i})"  >
 Delete
 </button>
 
